@@ -22,11 +22,11 @@ module MyMongoid
 
     attr_reader :attributes, :new_record
 
-    def initialize(options={})
-      raise ArgumentError unless options.is_a? Hash
-      @attributes = options
+    def initialize(attrs={})
+      @attributes ||= {}
+      raise ArgumentError unless attrs.is_a? Hash
+      process_attributes(attrs)
       @new_record = true
-      self
     end
 
     def read_attribute(attr)
@@ -40,6 +40,16 @@ module MyMongoid
     def new_record?
       @new_record
     end
+
+    def process_attributes(attrs)
+      attrs.each do |key, value|
+        key = key.to_s
+        raise UnknownAttributeError unless self.class.instance_methods.map { |i| i.to_s }.include?("#{key}=")
+        self.send("#{key}=", value)
+      end
+    end
+
+    alias :attributes= :process_attributes
 
     module ClassMethods
       def is_mongoid_model?
@@ -67,6 +77,6 @@ module MyMongoid
     end
   end
 
-  class DuplicateFieldError < RuntimeError
-  end
+  class DuplicateFieldError < RuntimeError;end
+  class UnknownAttributeError < RuntimeError;end
 end
