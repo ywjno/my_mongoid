@@ -45,7 +45,7 @@ module MyMongoid
     def process_attributes(attrs)
       attrs.each do |key, value|
         key = key.to_s
-        raise UnknownAttributeError unless self.class.instance_methods.map { |i| i.to_s }.include?("#{key}=")
+        raise UnknownAttributeError unless self.respond_to?("#{key}=")
         self.send("#{key}=", value)
       end
     end
