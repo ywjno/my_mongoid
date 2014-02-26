@@ -67,12 +67,19 @@ module MyMongoid
           end
 
           def #{field_name}=(value)
+            type = self.class.fields['#{field_name}'].options[:type]
+            if type
+              raise RuntimeError unless value.is_a? type
+            end
             self.write_attribute('#{field_name}', value)
           end
 
           if options
             alias_method('#{options[:as]}', '#{field_name}')
             alias_method('#{options[:as]}=', '#{field_name}=')
+            if options[:default]
+              #{field_name} = options[:default]
+            end
           end
         }
       end
