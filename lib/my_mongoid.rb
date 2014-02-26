@@ -6,17 +6,18 @@ module MyMongoid
   end
 
   class Field
-    attr_accessor :name
+    attr_reader :name, :options
 
-    def initialize(name)
+    def initialize(name, options)
       @name = name.to_s
+      @options = options
     end
   end
 
   module Document
     def self.included(base)
       base.extend(ClassMethods)
-      base.field('_id')
+      base.field('_id', :as => :id)
       MyMongoid.models << base
     end
 
@@ -56,10 +57,10 @@ module MyMongoid
         true
       end
 
-      def field(field_name)
+      def field(field_name, options = {})
         field_name = field_name.to_s
         raise DuplicateFieldError if fields.key?(field_name)
-        fields[field_name] = MyMongoid::Field.new(field_name)
+        fields[field_name] = MyMongoid::Field.new(field_name, options)
         class_eval %Q{
           def #{field_name}
             self.read_attribute('#{field_name}')
@@ -67,6 +68,11 @@ module MyMongoid
 
           def #{field_name}=(value)
             self.write_attribute('#{field_name}', value)
+          end
+
+          if options
+            alias_method('#{options[:as]}', '#{field_name}')
+            alias_method('#{options[:as]}=', '#{field_name}=')
           end
         }
       end
