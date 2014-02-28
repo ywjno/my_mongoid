@@ -5,4 +5,8 @@ gemspec
 
 group :test do
   gem 'rspec', '~>3.0.0.beta1'
+
+  if ENV["CI"]
+    gem "coveralls", require: false
+  end
 end

@@ -1,4 +1,4 @@
-# MyMongoid
+MyMongoid ![[Build Status]](https://travis-ci.org/ywjno/my_mongoid)
 
 TODO: Write a gem description
 
